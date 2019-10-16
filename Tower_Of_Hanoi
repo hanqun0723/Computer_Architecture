@@ -1,0 +1,79 @@
+.data
+argument: .word 3 #the number of disks
+str1: .string " \n Number of disk "
+str2: .string " \n Move disk from "
+str3: .string " to "
+
+.text
+main:   li a0, 4          #print the number of disks
+        la a1, str1
+        ecall
+        li a0, 1
+        lw a1, argument
+        ecall
+        lw a0, argument    #load arguments
+        li a1, 1    #a1 = A
+        li a2, 2    #a2 = B
+        li a3, 3    #a3 = C
+        jal ra,hanoi       #Exit program
+        li a0, 10
+        ecall 
+hanoi:  li t4, 1
+        bne a0, t4, Else #if(disk == 1)
+        mv t0, a0        #else(disk > 1)
+        mv t1, a1   
+        mv t2, a2       
+        mv t3, a3
+        li a0, 4   		
+        la a1, str2    
+        ecall
+        li a0, 1       
+        mv a1, t1
+        ecall
+        li a0, 4        
+        la a1, str3   
+        ecall
+        li a0, 1       
+        mv a1, t3
+        ecall
+        jalr ra, ra, 0	
+Else:   addi sp, sp, -20  #hanoi(n-1,A,C,B)
+        sw ra, 16(sp)
+        sw a3, 12(sp)
+        sw a2, 8(sp)
+        sw a1, 4(sp)
+        sw a0, 0(sp)
+        add t0, zero, a3  
+        mv a3, a2
+        mv a2, t0
+        addi a0, a0, -1
+        jal ra, hanoi  #ra = pc+4
+        lw ra, 16(sp)
+        lw a3, 12(sp)
+        lw a2, 8(sp)
+        lw a1, 4(sp)
+        lw a0, 0(sp)
+        mv t0, a0    #move a disk from A to C
+        mv t1, a1    #save a0,a1 values in t0,t1
+        li a0, 4   		
+        la a1, str2   
+        ecall
+        li a0, 1       
+        mv a1, t1
+        ecall
+        li a0, 4  
+        la a1, str3   
+        ecall
+        li a0, 1       
+        mv a1, a3
+        ecall
+        mv a0, t0   #hanoi(n-1,B,A,C)
+        mv a1, t1
+        add t0, zero, a2  
+        mv a2, a1
+        mv a1, t0
+        addi a0, a0, -1
+        jal ra, hanoi
+        lw ra, 16(sp)
+        addi sp, sp, 20
+        jalr ra, ra, 0	
